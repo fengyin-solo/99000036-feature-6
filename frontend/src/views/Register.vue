@@ -55,10 +55,11 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -107,7 +108,13 @@ async function handleRegister() {
   try {
     await authStore.register(form.username, form.email, form.password)
     ElMessage.success('注册成功')
-    router.push('/')
+    // 与登录一致：回到之前停下的页面；只接受站内路径
+    const redirect = route.query.redirect
+    const target =
+      typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+        ? redirect
+        : '/'
+    router.push(target)
   } catch (err) {
     ElMessage.error(err.response?.data?.error || '注册失败')
   } finally {

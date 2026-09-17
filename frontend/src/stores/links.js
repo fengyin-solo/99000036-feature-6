@@ -126,6 +126,20 @@ export const useLinksStore = defineStore('links', () => {
     fetchLinks(1)
   }
 
+  // 会话结束时调用，清空数据与筛选选择，下次登录不沿用
+  function resetState() {
+    links.value = []
+    categories.value = []
+    tags.value = []
+    total.value = 0
+    currentPage.value = 1
+    totalPages.value = 1
+    loading.value = false
+    selectedCategory.value = null
+    selectedTag.value = null
+    searchQuery.value = ''
+  }
+
   return {
     links,
     categories,
@@ -150,5 +164,6 @@ export const useLinksStore = defineStore('links', () => {
     setTag,
     setSearch,
     clearFilters,
+    resetState,
   }
 })

@@ -45,10 +45,11 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -73,7 +74,13 @@ async function handleLogin() {
   try {
     await authStore.login(form.username, form.password)
     ElMessage.success('登录成功')
-    router.push('/')
+    // 回到会话失效前停下的页面；只接受站内路径，防止开放重定向
+    const redirect = route.query.redirect
+    const target =
+      typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+        ? redirect
+        : '/'
+    router.push(target)
   } catch (err) {
     ElMessage.error(err.response?.data?.error || '登录失败')
   } finally {

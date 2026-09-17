@@ -21,10 +21,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+    // 登录/注册接口自身的 401（如密码错误）不属于会话失效，不处理
+    const isAuthRequest = error.config?.url?.startsWith('/auth/')
+    if (error.response?.status === 401 && !isAuthRequest) {
+      // 通知应用层会话已失效，由 App.vue 统一切回未登录状态并跳转
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'))
     }
     return Promise.reject(error)
   }

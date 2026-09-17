@@ -53,14 +53,23 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  authStore.loadFromStorage()
+  authStore.checkExpiry()
 
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next({ name: 'Login' })
+    // 把目标地址留在地址栏，重新登录后回到刚才停下的页面
+    next({ name: 'Login', query: { redirect: to.fullPath } })
   } else if (to.meta.guest && authStore.isLoggedIn) {
-    next({ name: 'Home' })
+    const redirect = to.query.redirect
+    next(isSafeRedirect(redirect) ? redirect : { name: 'Home' })
   } else {
     next()
   }
 })
+
+// 只接受站内相对路径，防止开放重定向
+function isSafeRedirect(path) {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//')
+}
 
 export default router
