@@ -1,20 +1,26 @@
 <template>
   <div id="app">
-    <Navbar v-if="authStore.isLoggedIn" />
-    <router-view />
+    <Navbar />
+    <router-view v-slot="{ Component, route }">
+      <GuestGate
+        v-if="route.meta.requiresAuth"
+        :key="authStore.isLoggedIn ? 'authed' : 'guest'"
+        :component="Component"
+        message="登录状态已失效，请重新登录后继续处理"
+      />
+      <component :is="Component" v-else />
+    </router-view>
+    <LoginDialog />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useAuthStore } from './stores/auth'
 import Navbar from './components/Navbar.vue'
+import LoginDialog from './components/LoginDialog.vue'
+import GuestGate from './components/GuestGate.vue'
+import { useAuthStore } from './stores/auth'
 
 const authStore = useAuthStore()
-
-onMounted(() => {
-  authStore.loadFromStorage()
-})
 </script>
 
 <style>

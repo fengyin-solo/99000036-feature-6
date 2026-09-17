@@ -126,6 +126,20 @@ export const useLinksStore = defineStore('links', () => {
     fetchLinks(1)
   }
 
+  // 退出/会话失效时清空数据与选择，重新登录后从初始状态重新加载
+  function reset() {
+    links.value = []
+    categories.value = []
+    tags.value = []
+    total.value = 0
+    currentPage.value = 1
+    totalPages.value = 1
+    loading.value = false
+    selectedCategory.value = null
+    selectedTag.value = null
+    searchQuery.value = ''
+  }
+
   return {
     links,
     categories,
@@ -150,5 +164,6 @@ export const useLinksStore = defineStore('links', () => {
     setTag,
     setSearch,
     clearFilters,
+    reset,
   }
 })

@@ -51,13 +51,21 @@ const router = createRouter({
   routes,
 })
 
+function safeRedirect(target) {
+  if (typeof target !== 'string' || !target.startsWith('/')) return '/'
+  // 防止 //host 之类的协议相对 URL 跳转到站外
+  if (target.startsWith('//')) return '/'
+  return target
+}
+
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next({ name: 'Login' })
+    // 直接访问（如刷新、手输地址）时仍保留目标地址，登录后跳回原页面
+    next({ name: 'Login', query: { redirect: to.fullPath } })
   } else if (to.meta.guest && authStore.isLoggedIn) {
-    next({ name: 'Home' })
+    next({ path: safeRedirect(to.query.redirect) })
   } else {
     next()
   }

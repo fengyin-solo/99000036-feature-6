@@ -61,6 +61,17 @@ export const useReadLaterStore = defineStore('readLater', () => {
     fetchReadLater(1, status)
   }
 
+  // 退出/会话失效时清空数据与选择，重新登录后从初始状态重新加载
+  function reset() {
+    links.value = []
+    total.value = 0
+    currentPage.value = 1
+    totalPages.value = 1
+    loading.value = false
+    stats.value = { pending: 0, completed: 0, skipped: 0, total: 0 }
+    filterStatus.value = 'pending'
+  }
+
   return {
     links,
     total,
@@ -74,5 +85,6 @@ export const useReadLaterStore = defineStore('readLater', () => {
     removeFromReadLater,
     updateReviewStatus,
     setFilterStatus,
+    reset,
   }
 })

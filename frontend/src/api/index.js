@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useAuthStore } from '../stores/auth'
 
 const api = axios.create({
   baseURL: '/api',
@@ -22,9 +23,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      // 接口确认会话已失效（如在别处退出）：保留当前页面 URL，
+      // 由 store 统一切换导航/按钮状态并弹出重新登录框
+      const authStore = useAuthStore()
+      authStore.handleSessionExpired('remote')
     }
     return Promise.reject(error)
   }
